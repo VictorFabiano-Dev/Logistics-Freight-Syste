@@ -68,4 +68,13 @@ button:hover{
     margin-bottom: 10px;
 }
 
+.btn-excluir{
+    background:#dc2626;
+    margin-top:10px;
+}
+
+.btn-excluir:hover{
+    background:#b91c1c;
+}
+
 
