@@ -1,5 +1,6 @@
 // Endereço da API backend
 const API_URL = "http://localhost:3000/fretes";
+let fretesCarregados = [];
 
 // Função principal para cadastrar um novo frete
 async function cadastrarFrete() {
@@ -9,10 +10,25 @@ async function cadastrarFrete() {
     const peso = Number(document.getElementById("peso").value);
 
     // Validação para impedir cadastro vazio
-    if (!origem || !destino || !peso) {
-        alert("Preencha todos os campos");
-        return;
-    }
+    if (origem.length < 2) {
+    alert("Informe uma origem válida.");
+    return;
+}
+
+if (destino.length < 2) {
+    alert("Informe um destino válido.");
+    return;
+}
+
+if (!peso || peso <= 0) {
+    alert("Informe um peso maior que zero.");
+    return;
+}
+
+if (peso > 40000) {
+    alert("Peso muito alto. Verifique se o valor está correto.");
+    return;
+}
 
     // Calcula o valor do frete automaticamente
     const valor = calcularFrete(origem, destino, peso);
@@ -100,18 +116,100 @@ async function carregarFretes() {
     // Converte a resposta para JSON
     const fretes = await resposta.json();
 
+    fretesCarregados = fretes;
+
+    atualizarDashboard(fretes);
+    renderizarGraficoDestinos(fretes);
     // Pega a área onde os fretes serão exibidos
+    renderizarListaFretes(fretes);
+}
+
+function atualizarDashboard(fretes) {
+    const totalFretes = fretes.length;
+
+    const faturamentoTotal = fretes.reduce((total, frete) => {
+        return total + frete.valor;
+    }, 0);
+
+    const pesoTotal = fretes.reduce((total, frete) => {
+        return total + frete.peso;
+    }, 0);
+
+    const ticketMedio = totalFretes > 0
+        ? faturamentoTotal / totalFretes
+        : 0;
+
+    document.getElementById("totalFretes").innerText =
+    totalFretes.toLocaleString("pt-BR");
+    document.getElementById("faturamentoTotal").innerText = formatarMoeda(faturamentoTotal);
+    document.getElementById("pesoTotal").innerText =
+    `${pesoTotal.toLocaleString("pt-BR")} kg`;
+    document.getElementById("ticketMedio").innerText = formatarMoeda(ticketMedio);
+}
+
+// Renderiza gráfico simples de fretes por destino
+function renderizarGraficoDestinos(fretes) {
+    const grafico = document.getElementById("graficoDestinos");
+
+    grafico.innerHTML = "";
+
+    const destinos = {};
+
+    fretes.forEach(frete => {
+        if (!destinos[frete.destino]) {
+            destinos[frete.destino] = 0;
+        }
+
+        destinos[frete.destino]++;
+    });
+
+    const maiorQuantidade = Math.max(...Object.values(destinos), 1);
+
+    Object.entries(destinos).forEach(([destino, quantidade]) => {
+        const largura = (quantidade / maiorQuantidade) * 100;
+
+        grafico.innerHTML += `
+            <div class="barra-item">
+                <div class="barra-info">
+                    <span>${destino}</span>
+                    <strong>${quantidade} frete(s)</strong>
+                </div>
+
+                <div class="barra-fundo">
+                    <div class="barra" style="width:${largura}%"></div>
+                </div>
+            </div>
+        `;
+    });
+}
+
+// Filtra fretes por origem ou destino
+function filtrarFretes() {
+    const termo = document.getElementById("filtroFretes").value
+        .trim()
+        .toLowerCase();
+
+    const fretesFiltrados = fretesCarregados.filter(frete => {
+        const origem = frete.origem.toLowerCase();
+        const destino = frete.destino.toLowerCase();
+
+        return origem.includes(termo) || destino.includes(termo);
+    });
+
+    renderizarListaFretes(fretesFiltrados);
+}
+
+// Renderiza a lista de fretes na tela
+function renderizarListaFretes(fretes) {
     const lista = document.getElementById("listaFretes");
 
-    // Limpa a lista antes de renderizar novamente
     lista.innerHTML = "";
 
-    // Cria um card para cada frete cadastrado
     fretes.forEach(frete => {
         lista.innerHTML += `
             <div class="item">
                 <strong>${frete.origem}</strong> → ${frete.destino}<br>
-                Peso: ${frete.peso} kg<br>
+                Peso: ${frete.peso.toLocaleString("pt-BR")} kg<br>
                 Valor calculado: ${formatarMoeda(frete.valor)}<br><br>
 
                 <button onclick="excluirFrete(${frete.id})" class="btn-excluir">
