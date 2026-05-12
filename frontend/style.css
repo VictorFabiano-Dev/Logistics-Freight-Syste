@@ -135,3 +135,12 @@ button:hover {
     background:#22c55e;
     border-radius:20px;
 }
+
+.btn-editar{
+    background:#2563eb;
+    margin-top:10px;
+}
+
+.btn-editar:hover{
+    background:#1d4ed8;
+}

@@ -21,7 +21,7 @@
             <input id="peso" type="text" placeholder="Peso (kg)">
 
 
-            <button onclick="cadastrarFrete()">
+            <button id="btnCadastrar" onclick="cadastrarFrete()">
                 Cadastrar
             </button>
         </div>
@@ -56,13 +56,9 @@
         <div class="card">
             <h2>Fretes Cadastrados</h2>
 
-            <input 
-                id="filtroFretes"
-                type="text"
-                placeholder="Filtrar por origem ou destino..."
-                oninput="filtrarFretes()"
-                >
-                
+            <input id="filtroFretes" type="text" placeholder="Filtrar por origem ou destino..."
+                oninput="filtrarFretes()">
+
             <div id="listaFretes"></div>
         </div>
     </div>

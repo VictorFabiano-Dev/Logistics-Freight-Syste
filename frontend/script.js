@@ -1,8 +1,9 @@
 // Endereço da API backend
 const API_URL = "http://localhost:3000/fretes";
 let fretesCarregados = [];
+let freteEditandoId = null;
 
-// Função principal para cadastrar um novo frete
+// Função principal para cadastrar ou editar frete
 async function cadastrarFrete() {
     // Captura os valores digitados pelo usuário
     const origem = document.getElementById("origem").value.trim();
@@ -41,20 +42,48 @@ if (peso > 40000) {
         valor
     };
 
-    // Envia o novo frete para a API usando POST
-    await fetch(API_URL, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify(novoFrete)
-    });
+    //Se existir ID em edição → atualiza
+    if (freteEditandoId !== null) {
+        await fetch(`${API_URL}/${freteEditandoId}`, {
+            method: "PUT",
+            headers: {
+                "content-Type": "application/json"
+            },
+            body: JSON.stringify(novoFrete)
+        });
+
+    freteEditandoId = null;
+    document.querySelector("button").innerText = "Cadastrar";document.getElementById("btnCadastrar").innerText =
+    "Cadastrar";
+    } else {
+        // Senão → cria novo
+        await fetch(API_URL, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(novoFrete)
+        });
+    }
 
     // Limpa os campos do formulário
     limparCampos();
 
     // Atualiza a lista de fretes na tela
     carregarFretes();
+}
+
+function editarFrete(id) {
+    const frete = fretesCarregados.find(item => item.id === id);
+
+    document.getElementById("origem").value = frete.origem;
+    document.getElementById("destino").value = frete.destino;
+    document.getElementById("peso").value = frete.peso;
+
+    freteEditandoId = id;
+
+    document.getElementById("btnCadastrar").innerText =
+    "Salvar Alteração";
 }
 
 // Função para excluir um frete pelo ID
@@ -211,6 +240,10 @@ function renderizarListaFretes(fretes) {
                 <strong>${frete.origem}</strong> → ${frete.destino}<br>
                 Peso: ${frete.peso.toLocaleString("pt-BR")} kg<br>
                 Valor calculado: ${formatarMoeda(frete.valor)}<br><br>
+
+                <button onclick="editarFrete(${frete.id})" class="btn-editar">
+                Editar
+                </button>
 
                 <button onclick="excluirFrete(${frete.id})" class="btn-excluir">
                     Excluir

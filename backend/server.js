@@ -68,6 +68,30 @@ app.post("/fretes", (req, res) => {
     );
 });
 
+//Atualizar um frete pelo ID
+app.put("/fretes/:id", (req, res) => {
+     const id = Number(req.params.id);
+     const { origem, destino, peso, valor } = req.body;
+
+     db.run(
+        "UPDATE fretes SET origem = ?, destino = ?, peso = ?, valor = ? WHERE id = ?",
+        [origem, destino, peso, valor, id],
+        function (error) {
+            if (error) {
+                return res.status(500).json({ error: "Erro ao atualizar frete"});
+            }
+
+            res.json({
+                id,
+                origem,
+                destino,
+                peso,
+                valor
+            });
+        }
+     );
+});
+
 // Exclui frete pelo ID
 app.delete("/fretes/:id", (req, res) => {
     const id = Number(req.params.id);
