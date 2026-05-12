@@ -105,6 +105,17 @@ app.delete("/fretes/:id", (req, res) => {
     });
 });
 
+// Remove todos os fretes do banco
+app.delete("/fretes", (req, res) => {
+    db.run("DELETE FROM fretes", [], function (error) {
+        if (error) {
+            return res.status(500).json({ error: "Erro ao resetar base" });
+        }
+
+        res.json({ message: "Base resetada com sucesso" });
+    });
+});
+
 app.listen(3000, () => {
     console.log("Servidor rodando na porta 3000 com SQLite");
 });

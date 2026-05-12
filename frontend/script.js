@@ -88,12 +88,31 @@ function editarFrete(id) {
 
 // Função para excluir um frete pelo ID
 async function excluirFrete(id) {
-    // Envia uma requisição DELETE para o backend
+    const confirmar = confirm("Deseja realmente excluir este frete?");
+
+    if (!confirmar) {
+        return;
+    }
+
     await fetch(`${API_URL}/${id}`, {
         method: "DELETE"
     });
 
     // Atualiza a lista após excluir
+    carregarFretes();
+}
+
+async function resetarBase() {
+    const confirmar = confirm("Deseja realmente apagar todos os fretes?");
+
+    if (!confirmar) {
+        return;
+    }
+
+    await fetch(API_URL, {
+        method: "DELETE"
+    });
+
     carregarFretes();
 }
 
@@ -149,6 +168,7 @@ async function carregarFretes() {
 
     atualizarDashboard(fretes);
     renderizarGraficoDestinos(fretes);
+    renderizarInsights(fretes);
     // Pega a área onde os fretes serão exibidos
     renderizarListaFretes(fretes);
 }
@@ -210,6 +230,38 @@ function renderizarGraficoDestinos(fretes) {
             </div>
         `;
     });
+}
+
+function renderizarInsights(fretes) {
+    const insights = document.getElementById("insights");
+
+    if (fretes.length === 0) {
+        insights.innerHTML = "Nenhum dado disponível.";
+        return;
+    }
+
+    const destinos = {};
+
+    fretes.forEach(frete => {
+        destinos[frete.destino] = (destinos[frete.destino] || 0) + 1;
+    });
+
+    const rotaMaisUsada = Object.entries(destinos)
+        .sort((a, b) => b[1] - a[1])[0];
+
+    const maiorFrete = fretes.reduce((maior, frete) => {
+        return frete.valor > maior.valor ? frete : maior;
+    }, fretes[0]);
+
+    const pesoMedio = fretes.reduce((total, frete) => {
+        return total + frete.peso;
+    }, 0) / fretes.length;
+
+    insights.innerHTML = `
+        <p>Rota mais usada: <strong>${rotaMaisUsada[0]}</strong></p>
+        <p>Maior frete: <strong>${formatarMoeda(maiorFrete.valor)}</strong></p>
+        <p>Média de peso: <strong>${pesoMedio.toLocaleString("pt-BR")} kg</strong></p>
+    `;
 }
 
 // Filtra fretes por origem ou destino

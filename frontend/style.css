@@ -144,3 +144,12 @@ button:hover {
 .btn-editar:hover{
     background:#1d4ed8;
 }
+
+.btn-resetar{
+    background:#f97316;
+    margin-bottom:20px;
+}
+
+.btn-resetar:hover{
+    background:#ea580c;
+}
