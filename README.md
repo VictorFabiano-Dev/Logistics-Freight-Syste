@@ -55,3 +55,42 @@ logistics-freight-system/
     ├── index.html
     ├── style.css
     └── script.js
+
+    ▶️ Como rodar localmente
+Backend
+cd backend
+npm install
+node server.js
+
+A API ficará disponível em:
+
+http://localhost:3000/fretes
+Frontend
+
+Abra o arquivo:
+
+frontend/index.html
+
+ou use a extensão Live Server no VS Code.
+
+🔗 Endpoints da API
+Listar fretes
+GET /fretes
+Cadastrar frete
+POST /fretes
+Editar frete
+PUT /fretes/:id
+Excluir frete
+DELETE /fretes/:id
+Resetar base
+DELETE /fretes
+📌 Status
+
+Projeto em desenvolvimento contínuo.
+
+🧭 Próximas melhorias
+Autenticação de usuário
+Migração para PostgreSQL
+Deploy online
+Versão em React
+Integração com Power BI
